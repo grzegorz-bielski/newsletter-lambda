@@ -1,5 +1,5 @@
 {
-  "name": "node-ts-app",
+  "name": "newsletter-app",
   "version": "1.0.0",
   "description": "Serverless webpack example using Typescript",
   "main": "handler.js",
@@ -14,6 +14,7 @@
     "@types/node": "^10.12.18",
     "@types/serverless": "^1.72.5",
     "fork-ts-checker-webpack-plugin": "^3.0.1",
+    "serverless-localstack": "^0.4.27",
     "serverless-webpack": "^5.2.0",
     "ts-loader": "^5.3.3",
     "ts-node": "^8.10.2",

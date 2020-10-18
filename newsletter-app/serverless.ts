@@ -2,7 +2,7 @@ import type { Serverless } from 'serverless/aws';
 
 const serverlessConfiguration: Serverless = {
   service: {
-    name: 'node-ts-app',
+    name: 'newsletter-app',
     // app and org for use with dashboard.serverless.com
     // app: your-app-name,
     // org: your-org-name,
@@ -12,10 +12,19 @@ const serverlessConfiguration: Serverless = {
     webpack: {
       webpackConfig: './webpack.config.js',
       includeModules: true
+    },
+    localstack: {
+      stages: ['local'],
+      docker: { 
+        sudo: true
+       }
+      // lambda: {
+      //   mountCode: true
+      // }
     }
   },
   // Add the serverless-webpack plugin
-  plugins: ['serverless-webpack'],
+  plugins: ['serverless-webpack', 'serverless-localstack'],
   provider: {
     name: 'aws',
     runtime: 'nodejs12.x',
@@ -27,13 +36,13 @@ const serverlessConfiguration: Serverless = {
     },
   },
   functions: {
-    hello: {
-      handler: 'handler.hello',
+    register: {
+      handler: 'handler.register',
       events: [
         {
           http: {
-            method: 'get',
-            path: 'hello',
+            method: 'post',
+            path: 'register',
           }
         }
       ]
