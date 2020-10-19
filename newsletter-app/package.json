@@ -4,9 +4,13 @@
   "description": "Serverless webpack example using Typescript",
   "main": "handler.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "localstack": "TMPDIR=./localstack-tmp$TMPDIR docker-compose up",
+    "localstack:clear": "rm -rf ./localstack-tmp",
+    "ts-node": "ts-node"
   },
   "dependencies": {
+    "aws-sdk": "^2.774.0",
     "source-map-support": "^0.5.10"
   },
   "devDependencies": {

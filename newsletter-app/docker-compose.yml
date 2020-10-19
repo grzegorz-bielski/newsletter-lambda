@@ -1,18 +1,16 @@
 version: "3.8"
 services:
   localstack:
-    image: localstack/localstack
+    image: localstack/localstack:latest
+    network_mode: bridge
     ports:
-      - "4566-4599:4566-4599"
-      - "8080:8080"
+      - "4566:4566"
+      - "4571:4571"
     environment:
       - SERVICES=s3,lambda,cloudformation,apigateway,dynamodb,sts,iam
+      - HOST_TMP_FOLDER=${TMPDIR}
       - DEBUG=true
-      - DATA_DIR=/tmp/localstack/data
-      - LAMBDA_EXECUTOR=local
-      - LAMBDA_REMOTE_DOCKER=false
       - DOCKER_HOST=unix:///var/run/docker.sock
-      - START_WEB=1
     volumes:
-      - ./localstack-tmp:/tmp/localstack
+      - "${TMPDIR:-/tmp/localstack}:/tmp/localstack"
       - "/var/run/docker.sock:/var/run/docker.sock"
