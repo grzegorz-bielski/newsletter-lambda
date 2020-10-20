@@ -26,8 +26,17 @@ const serverlessConfiguration: Serverless = {
         },
         environment: {
             AWS_NODEJS_CONNECTION_REUSE_ENABLED: '1',
+            SUBSCRIBERS_TABLE: '${self:service}-${opt:stage, self:provider.stage}',
         },
+        iamRoleStatements: [
+            {
+                Effect: 'Allow',
+                Action: ['dynamodb:Query', 'dynamodb:Scan', 'dynamodb:GetItem', 'dynamodb:PutItem'],
+                Resource: '*',
+            },
+        ],
     },
+
     functions: {
         register: {
             handler: 'handler.register',
@@ -46,7 +55,8 @@ const serverlessConfiguration: Serverless = {
             usersTable: {
                 Type: 'AWS::DynamoDB::Table',
                 Properties: {
-                    TableName: 'usersTable',
+                    TableName: '${self:provider.environment.SUBSCRIBERS_TABLE}',
+                    DeletionPolicy: 'Retain',
                     AttributeDefinitions: [
                         {
                             AttributeName: 'email',
@@ -59,6 +69,10 @@ const serverlessConfiguration: Serverless = {
                             KeyType: 'HASH',
                         },
                     ],
+                    ProvisionedThroughput: {
+                        ReadCapacityUnits: 1,
+                        WriteCapacityUnits: 1,
+                    },
                 },
             },
             // "emailService": {
