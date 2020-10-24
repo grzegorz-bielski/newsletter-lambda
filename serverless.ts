@@ -1,4 +1,4 @@
-import type { Serverless, Functions } from 'serverless/aws';
+import type { Serverless, Functions, IamRoleStatement } from 'serverless/aws';
 
 const functions: Functions = {
   register: {
@@ -12,12 +12,36 @@ const functions: Functions = {
       },
     ],
   },
+  publish: {
+    handler: 'src/handler.publish',
+    events: [
+      {
+        http: {
+          method: 'post',
+          path: 'publish',
+        },
+      },
+    ],
+  },
+};
+
+const dynamoDBPermissions: IamRoleStatement = {
+  Effect: 'Allow',
+  Action: ['dynamodb:Query', 'dynamodb:Scan', 'dynamodb:GetItem', 'dynamodb:PutItem'],
+  Resource: '*',
+};
+
+const sesPermissions: IamRoleStatement = {
+  Effect: 'Allow',
+  Action: ['ses:SendEmail', 'ses:SendRawEmail'],
+  Resource: '*',
 };
 
 const providerOptions: Pick<Serverless, 'resources' | 'provider'> = {
   provider: {
     name: 'aws',
     runtime: 'nodejs12.x',
+    region: 'eu-central-1',
     apiGateway: {
       minimumCompressionSize: 1024,
     },
@@ -25,13 +49,7 @@ const providerOptions: Pick<Serverless, 'resources' | 'provider'> = {
       AWS_NODEJS_CONNECTION_REUSE_ENABLED: '1',
       SUBSCRIBERS_TABLE: '${self:service}-${opt:stage, self:provider.stage}',
     },
-    iamRoleStatements: [
-      {
-        Effect: 'Allow',
-        Action: ['dynamodb:Query', 'dynamodb:Scan', 'dynamodb:GetItem', 'dynamodb:PutItem'],
-        Resource: '*',
-      },
-    ],
+    iamRoleStatements: [dynamoDBPermissions, sesPermissions],
   },
   resources: {
     Resources: {

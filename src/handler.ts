@@ -1,23 +1,22 @@
-import { APIGatewayProxyHandler, APIGatewayProxyEvent } from 'aws-lambda';
-import { DynamoDB } from 'aws-sdk';
-import * as t from 'io-ts';
-import * as E from 'fp-ts/lib/Either';
+import { APIGatewayProxyHandler } from 'aws-lambda';
+import { DynamoDB, SES } from 'aws-sdk';
 import * as T from 'fp-ts/lib/Task';
 import * as TE from 'fp-ts/lib/TaskEither';
-import { flow } from 'fp-ts/lib/function';
+import { pipe } from 'fp-ts/lib/pipeable';
 import 'source-map-support/register';
 
 import { EmailRepo } from './EmailRepo';
+import { EmailService } from './EmailService';
 import * as Errors from './Errors';
-import { pipe } from 'fp-ts/lib/pipeable';
+import { email } from './';
 
-const emailRepo = new EmailRepo(new DynamoDB());
+const emailRepository = new EmailRepo(new DynamoDB(), new DynamoDB.DocumentClient());
+const emailService = new EmailService(new SES(), email);
 
 export const register: APIGatewayProxyHandler = (event, _context) =>
   pipe(
-    EmailService.extractEmail(event),
-    TE.fromEither,
-    TE.chain(a => emailRepo.put(a.email)),
+    TE.fromEither(emailService.extractEmail(event)),
+    TE.chain(a => emailRepository.put(a.email)),
     TE.fold(
       err =>
         T.of({
@@ -28,15 +27,21 @@ export const register: APIGatewayProxyHandler = (event, _context) =>
     ),
   )();
 
-namespace EmailService {
-  const EmailPayload = t.type({
-    email: t.string, // this probably could be a type refinement
-  });
-
-  export const extractEmail = flow(
-    (e: APIGatewayProxyEvent) => e.body,
-    E.fromNullable(Errors.ServiceError.noRequestBody()),
-    E.chain(e => E.parseJSON(e, error => Errors.ServiceError.couldNotParseBody({ error }))),
-    E.chain(flow(EmailPayload.decode, Errors.fromDecoded)),
-  );
-}
+export const publish: APIGatewayProxyHandler = (event, _context) =>
+  pipe(
+    TE.fromEither(emailService.extractNewsletterMsg(event)),
+    TE.chain(({ msg }) =>
+      pipe(
+        emailRepository.getAll(),
+        TE.chain(emails => emailService.sendEmail(emails, msg)),
+      ),
+    ),
+    TE.fold(
+      err =>
+        T.of({
+          statusCode: Errors.toStatusCode(err),
+          body: Errors.toErrorMsg(err),
+        }),
+      a => T.of({ statusCode: 201, body: JSON.stringify(a) }),
+    ),
+  )();

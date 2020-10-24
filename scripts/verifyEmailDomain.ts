@@ -1,8 +1,8 @@
 import * as AWS from 'aws-sdk';
 
-(async () => {
-  const domain = 'microstream.ch';
+import { domain } from '../src';
 
+(async () => {
   AWS.config.update({ region: 'eu-central-1' });
 
   const route53 = new AWS.Route53();
