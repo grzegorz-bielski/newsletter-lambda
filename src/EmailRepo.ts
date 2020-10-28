@@ -16,7 +16,7 @@ export class EmailRepo {
   constructor(
     private readonly db: DynamoDB,
     private readonly dc: DynamoDB.DocumentClient,
-    private readonly tableName = process.env.SUBSCRIBERS_TABLE ?? '',
+    private readonly tableName: string,
   ) {}
 
   put(email: string): Result<DynamoDB.PutItemOutput> {

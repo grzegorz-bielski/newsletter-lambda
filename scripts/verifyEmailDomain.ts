@@ -1,8 +1,14 @@
 import * as AWS from 'aws-sdk';
-
-import { domain } from '../src';
+import { config as dotEnvConfig } from 'dotenv';
 
 (async () => {
+  dotEnvConfig();
+  const domain = process.env.DOMAIN;
+
+  if (!domain) {
+    throw new Error('Domain must be specified in the .env file!');
+  }
+
   AWS.config.update({ region: 'eu-central-1' });
 
   const route53 = new AWS.Route53();

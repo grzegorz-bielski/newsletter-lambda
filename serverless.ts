@@ -84,7 +84,7 @@ const serverlessConfiguration: Serverless = {
     name: 'newsletter-app',
   },
   frameworkVersion: '2',
-  plugins: ['serverless-webpack', 'serverless-localstack'],
+  plugins: ['serverless-webpack', 'serverless-localstack', 'serverless-dotenv-plugin'],
   custom: {
     webpack: {
       webpackConfig: './webpack.config.js',

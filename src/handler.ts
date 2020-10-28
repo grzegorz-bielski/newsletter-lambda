@@ -1,17 +1,11 @@
 import { APIGatewayProxyHandler } from 'aws-lambda';
-import { DynamoDB, SES } from 'aws-sdk';
 import * as T from 'fp-ts/lib/Task';
 import * as TE from 'fp-ts/lib/TaskEither';
 import { pipe } from 'fp-ts/lib/pipeable';
 import 'source-map-support/register';
 
-import { EmailRepo } from './EmailRepo';
-import { EmailService } from './EmailService';
 import * as Errors from './Errors';
-import { email } from './';
-
-const emailRepository = new EmailRepo(new DynamoDB(), new DynamoDB.DocumentClient());
-const emailService = new EmailService(new SES(), email);
+import { emailService, emailRepository } from './root';
 
 export const register: APIGatewayProxyHandler = (event, _context) =>
   pipe(

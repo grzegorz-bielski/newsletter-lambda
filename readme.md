@@ -1,11 +1,27 @@
 ### Serverless newsletter service
 
-It works, but to make it production-ready you'll probably want to add `SNS` topic so the emails are not lost, tinker with an email sending function to hide the recipients, and obviously change the domain/email (`/src/index.ts`) and region (`/serverless.ts`)
+It works, but to make it production-ready you'll probably want to add `SNS` topic so the emails are not lost and tinker with an email sending function to hide the recipients.
 
-### Setup:
+### Local setup:
 
 1. install Node.js through [nvm](https://github.com/nvm-sh/nvm)
 2. install [serverless ci](https://www.serverless.com/)
+
+### AWS setup:
+
+1. fill out the `.env` with your domain and email address
+2. verify your domain
+
+   - if it comes from route53 just run this:
+
+   ```
+   npm run ts-node -- ./scripts/verifyEmailDomain
+   ```
+
+   - if it comes from the other provider you must do it manually
+
+3. (optional) Contact AWS support to leave the SES sandbox
+   By default you can only send emails to verified email addresses
 
 Deploy
 

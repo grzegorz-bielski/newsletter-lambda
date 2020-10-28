@@ -7,9 +7,6 @@ import { ServiceError } from './Errors';
 
 export type Result<T> = TE.TaskEither<ServiceError, T>;
 
-export const domain = 'microstream.ch';
-export const email = `hello@${domain}`;
-
 export const fromAWSCall = <T>(serviceCall: () => Promise<PromiseResult<T, AWSError>>): Result<T> =>
   pipe(
     TE.tryCatch(serviceCall, error => ServiceError.networkError({ error })),
